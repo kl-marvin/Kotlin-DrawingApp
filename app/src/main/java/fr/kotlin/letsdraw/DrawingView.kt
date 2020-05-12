@@ -3,33 +3,97 @@ package fr.kotlin.letsdraw
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import kotlin.math.round
 
+
+// view occupies a rectangular area in the screen and is responsible for drawing and event handling
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
 
-    private var drawPath : CustomPath? = null
-    private var danvasBitmap: Bitmap? = null
-    private var drawPaint : Paint? = null
-    private var canvasPaint: Paint? = null
-    private var brunshSize: Float = 0.toFloat()
+    private var mDrawPath : CustomPath? = null
+    private var mCanvasBitmap: Bitmap? = null // holds the pixels
+    private var mDrawPaint : Paint? = null
+    private var mCanvasPaint: Paint? = null
+    private var mBrunshSize: Float = 0.toFloat()
     private var color = Color.BLACK
-    private var canvas: Canvas? = null
+
+    /**
+
+     *
+     *The Canvas class holds the "draw" calls.
+     * To draw something, 4 basic components are needed:
+     * A Bitmap to hold the pixels,
+     * a Canvas to host the draw calls (writing into the bitmap),
+     * a drawing primitive (e.g. Rect, Path, text, Bitmap),
+     * and a paint (to describe the colors and styles for the drawing)
+     */
+    private var canvas: Canvas? = null  // holds the draw calls
+
 
 
     init {
+    setUpDrawing()
+    }
+
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        // setting up bitmap height width and color options
+        mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        canvas = Canvas(mCanvasBitmap!!)
+    }
+
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)// top left corner & and style defined
+
+        if(!mDrawPath!!.isEmpty){
+            mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
+            mDrawPaint!!.color = mDrawPaint!!.color
+            canvas.drawPath(mDrawPath!!, mDrawPaint!!)
+        }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+
+        val touchX = event?.x
+        val touchY = event?.y
+
+        when(event?.action){
+            MotionEvent.ACTION_DOWN -> {
+                mDrawPath!!.color = color
+                mDrawPath!!.brushThickness = mBrunshSize
+
+                mDrawPath!!.reset()
+                mDrawPath!!.moveTo(touchX!!, touchY!!)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                mDrawPath!!.lineTo(touchX!!, touchY!!)
+            }
+            MotionEvent.ACTION_UP -> {
+                mDrawPath = CustomPath(color, mBrunshSize)
+            }
+            else -> return false
+        }
+        invalidate()// Invalidate the whole view
+        return true
 
     }
 
+   // initializes the attributes
     private fun setUpDrawing(){
-        drawPaint = Paint()
-        drawPath = CustomPath(color, brunshSize)
-        drawPaint!!.color = color
-        drawPaint!!.style = Paint.Style.STROKE
-        drawPaint!!.strokeJoin = Paint.Join.ROUND   // les extremintés des lignes
-        drawPaint!!.strokeCap = Paint.Cap.ROUND // fin de ligne
-        canvasPaint = Paint(Paint.DITHER_FLAG) // copy bits from one part of computer's graphical mem to anither
-        brunshSize = 20.toFloat()
+        mDrawPaint = Paint()
+        mDrawPath = CustomPath(color, mBrunshSize)
+        mDrawPaint!!.color = color
+        mDrawPaint!!.style = Paint.Style.STROKE
+        mDrawPaint!!.strokeJoin = Paint.Join.ROUND   // les extremintés des lignes
+        mDrawPaint!!.strokeCap = Paint.Cap.ROUND // fin de ligne
+        mCanvasPaint = Paint(Paint.DITHER_FLAG) // copy bits from one part of computer's graphical mem to anither
+        mBrunshSize = 20.toFloat()
     }
 
     // variables accessible depuis DrawningView
