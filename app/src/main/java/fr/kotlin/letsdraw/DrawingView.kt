@@ -11,12 +11,15 @@ import kotlin.math.round
 // view occupies a rectangular area in the screen and is responsible for drawing and event handling
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
 
-    private var mDrawPath : CustomPath? = null
+    private var mDrawPath : CustomPath? = null // traits
     private var mCanvasBitmap: Bitmap? = null // holds the pixels
     private var mDrawPaint : Paint? = null
     private var mCanvasPaint: Paint? = null
     private var mBrunshSize: Float = 0.toFloat()
     private var color = Color.BLACK
+    private var mPaths = ArrayList<CustomPath>()
+
+
 
     /**
 
@@ -49,6 +52,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        for(path in mPaths){ // on parcours le tableau de traits
+            // on applique le "theme"
+            mDrawPaint!!.strokeWidth = path.brushThickness
+            mDrawPaint!!.color = path.color
+            // on le dessine
+            canvas.drawPath(path, mDrawPaint!!);
+        }
+
         canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)// top left corner & and style defined
 
         if(!mDrawPath!!.isEmpty){
@@ -76,6 +87,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
             }
             MotionEvent.ACTION_UP -> {
                 mDrawPath = CustomPath(color, mBrunshSize)
+                mPaths.add(mDrawPath!!)//ajoute le trait pour le persister sur l'écran
             }
             else -> return false
         }
