@@ -8,6 +8,8 @@
 
     <fr.kotlin.letsdraw.DrawingView
         android:id="@+id/drawing_view"
+        android:layout_margin="8dp"
+        android:background="@drawable/bc_drawing_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
