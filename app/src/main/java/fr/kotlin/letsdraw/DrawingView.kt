@@ -3,6 +3,7 @@ package fr.kotlin.letsdraw
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.round
@@ -104,15 +105,19 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         mDrawPaint!!.style = Paint.Style.STROKE
         mDrawPaint!!.strokeJoin = Paint.Join.ROUND   // les extremintés des lignes
         mDrawPaint!!.strokeCap = Paint.Cap.ROUND // fin de ligne
-        mCanvasPaint = Paint(Paint.DITHER_FLAG) // copy bits from one part of computer's graphical mem to anither
-        mBrunshSize = 20.toFloat()
+        mCanvasPaint = Paint(Paint.DITHER_FLAG) // copy bits from one part of computer's graphical mem to another
+        //mBrunshSize = 20.toFloat()
+    }
+
+
+    fun setSizeforBrunsh(newSize: Float){
+        // calcul le taille du pinceau dynamique en fonction de la taille de l'écran
+        mBrunshSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, resources.displayMetrics)
+        mDrawPaint!!.strokeWidth = mBrunshSize
     }
 
     // variables accessible depuis DrawningView
     internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path() {
-
-
-
     }
 
 
